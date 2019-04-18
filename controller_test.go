@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/astaxie/beego/context"
+	"github.com/spiritclips/beego/context"
 	"os"
 	"path/filepath"
 )
