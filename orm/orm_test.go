@@ -1990,6 +1990,59 @@ func TestTransaction(t *testing.T) {
 
 }
 
+func TestTransactionTx(t *testing.T) {
+	// this test worked when database support transaction
+
+	o := NewOrm()
+	tx, err := o.BeginTx()
+	throwFail(t, err)
+
+	var names = []string{"1", "2", "3"}
+
+	var tag Tag
+	tag.Name = names[0]
+	id, err := tx.Insert(&tag)
+	throwFail(t, err)
+	throwFail(t, AssertIs(id > 0, true))
+
+	num, err := tx.QueryTable("tag").Filter("name", "golang").Update(Params{"name": names[1]})
+	throwFail(t, err)
+	throwFail(t, AssertIs(num, 1))
+
+	switch {
+	case IsMysql || IsSqlite:
+		res, err := tx.Raw("INSERT INTO tag (name) VALUES (?)", names[2]).Exec()
+		throwFail(t, err)
+		if err == nil {
+			id, err = res.LastInsertId()
+			throwFail(t, err)
+			throwFail(t, AssertIs(id > 0, true))
+		}
+	}
+
+	err = tx.Rollback()
+	throwFail(t, err)
+
+	num, err = o.QueryTable("tag").Filter("name__in", names).Count()
+	throwFail(t, err)
+	throwFail(t, AssertIs(num, 0))
+
+	tx, err = o.BeginTx()
+	throwFail(t, err)
+
+	tag.Name = "commit"
+	id, err = tx.Insert(&tag)
+	throwFail(t, err)
+	throwFail(t, AssertIs(id > 0, true))
+
+	tx.Commit()
+	throwFail(t, err)
+
+	num, err = o.QueryTable("tag").Filter("name", "commit").Delete()
+	throwFail(t, err)
+	throwFail(t, AssertIs(num, 1))
+}
+
 func TestReadOrCreate(t *testing.T) {
 	u := &User{
 		UserName: "Kyle",

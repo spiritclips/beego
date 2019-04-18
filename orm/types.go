@@ -106,6 +106,14 @@ type Ormer interface {
 	// 	...
 	// 	err = o.Rollback()
 	Begin() error
+	// begin transaction and return transaction object
+	// for example:
+	// 	o := NewOrm()
+	// 	tx, err := o.Begin()
+	// 	...
+	//  err = tx.Commit()
+	// 	err = tx.Rollback()
+	BeginTx() (*orm, error)
 	// commit transaction
 	Commit() error
 	// rollback transaction

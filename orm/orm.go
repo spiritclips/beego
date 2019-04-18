@@ -475,6 +475,21 @@ func (o *orm) Begin() error {
 	return nil
 }
 
+// begin transaction
+func (o *orm) BeginTx() (*orm, error) {
+	tx, err := o.db.(txer).Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	newOrm := &orm{
+		alias: o.alias,
+		db: tx,
+		isTx: true,
+	}
+	return newOrm, nil
+}
+
 // commit transaction
 func (o *orm) Commit() error {
 	if !o.isTx {
