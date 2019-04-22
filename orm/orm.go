@@ -475,8 +475,11 @@ func (o *orm) Begin() error {
 	return nil
 }
 
-// begin transaction
+// begin transaction without replacing primary DB object (better for concurrency)
 func (o *orm) BeginTx() (*orm, error) {
+	if o.isTx {
+		return nil, ErrTxHasBegan
+	}
 	tx, err := o.db.(txer).Begin()
 	if err != nil {
 		return nil, err
