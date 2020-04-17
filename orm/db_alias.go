@@ -185,11 +185,6 @@ func addAliasWthDB(aliasName, driverName string, db *sql.DB) (*alias, error) {
 		return nil, fmt.Errorf("driver name `%s` have not registered", driverName)
 	}
 
-	err := db.Ping()
-	if err != nil {
-		return nil, fmt.Errorf("register db Ping `%s`, %s", aliasName, err.Error())
-	}
-
 	if !dataBaseCache.add(aliasName, al) {
 		return nil, fmt.Errorf("DataBase alias name `%s` already registered, cannot reuse", aliasName)
 	}
